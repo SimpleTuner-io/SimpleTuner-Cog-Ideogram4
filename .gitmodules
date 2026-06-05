@@ -1,0 +1,4 @@
+[submodule "SimpleTuner"]
+	path = SimpleTuner
+	url = https://github.com/bghira/SimpleTuner.git
+	branch = feature/ideogram-scaled-mm
