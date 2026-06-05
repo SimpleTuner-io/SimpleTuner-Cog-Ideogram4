@@ -1,0 +1,61 @@
+{
+  "model_family": "ideogram",
+  "model_flavour": "fp8",
+  "model_type": "lora",
+  "lora_type": "standard",
+  "lora_rank": 32,
+  "lora_alpha": 4,
+
+  "pretrained_model_name_or_path": "ideogram-ai/ideogram-4-fp8",
+  "base_model_precision": "no_change",
+  "quantize_via": "cpu",
+  "mixed_precision": "bf16",
+  "gradient_checkpointing": true,
+  "gradient_checkpointing_interval": 1,
+
+  "learning_rate": 1e-4,
+  "lr_scheduler": "constant",
+  "lr_warmup_steps": 0,
+  "max_grad_norm": 0.01,
+  "optimizer": "optimi-lion",
+
+  "resolution": 1024,
+  "resolution_type": "pixel_area",
+  "minimum_image_size": 1024,
+  "maximum_image_size": 1024,
+  "target_downsample_size": 1024,
+
+  "train_batch_size": 1,
+  "num_train_epochs": 25,
+  "max_train_steps": 0,
+  "checkpoint_step_interval": 0,
+  "checkpoint_epoch_interval": 5,
+  "checkpoints_total_limit": 3,
+  "resume_from_checkpoint": "latest",
+
+  "skip_file_discovery": false,
+  "push_checkpoints_to_hub": false,
+  "push_to_hub": false,
+  "report_to": "none",
+  "seed": 42,
+
+  "ideogram_auto_json": true,
+  "ideogram_validation": true,
+  "ideogram_prompt_upsample": false,
+  "ideogram_schedule_mu": 0.0,
+  "ideogram_schedule_std": 1.5,
+
+  "validation_prompt": "{\"high_level_description\":\"A clean studio photograph of TOK as the main subject, centered in a square composition with crisp detail and natural proportions.\",\"style_description\":{\"aesthetics\":\"Clean, realistic, polished, commercial portrait style.\",\"lighting\":\"Soft even studio lighting with gentle shadows and clear subject separation.\",\"photo\":\"Sharp 35mm photograph, square framing, natural color, high detail.\",\"medium\":\"Photograph.\",\"color_palette\":[\"#2F3340\",\"#D8D2C4\"]},\"compositional_deconstruction\":{\"background\":\"Simple neutral studio background with minimal visual clutter.\",\"elements\":[{\"type\":\"obj\",\"bbox\":[240,160,784,900],\"desc\":\"TOK centered as the primary subject, clearly visible, detailed, and in focus.\"}]}}",
+  "validation_negative_prompt": "{\"high_level_description\":\"Low quality image with broken anatomy, garbled text, duplicated subject, severe blur, artifacts, or incoherent composition.\",\"style_description\":{\"aesthetics\":\"Low quality, distorted, noisy.\",\"lighting\":\"Harsh uneven lighting.\",\"photo\":\"Blurry artifacted image.\",\"medium\":\"Photograph.\",\"color_palette\":[\"#000000\",\"#FFFFFF\"]},\"compositional_deconstruction\":{\"background\":\"Noisy cluttered background.\",\"elements\":[{\"type\":\"obj\",\"desc\":\"Distorted subject with poor detail.\"}]}}",
+  "validation_guidance": 3.0,
+  "validation_guidance_rescale": 0.0,
+  "validation_num_inference_steps": 12,
+  "validation_resolution": "1024x1024",
+  "validation_steps": 50,
+  "validation_prompt_library": false,
+
+  "output_dir": "output/cog/ideogram4",
+  "data_backend_config": "",
+  "tracker_project_name": "cog-ideogram4",
+  "tracker_run_name": "ideogram4-training-run"
+}
