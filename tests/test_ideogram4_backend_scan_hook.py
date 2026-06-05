@@ -114,6 +114,7 @@ class Ideogram4BackendScanHookTests(unittest.TestCase):
                 trigger_word="TOK",
                 caption_strategy="textfile",
                 train_batch_size=1,
+                enable_regional_compile=True,
                 checkpoints_total_limit=1,
                 checkpoint_epoch_interval=1,
                 checkpoint_step_interval=0,
@@ -126,6 +127,8 @@ class Ideogram4BackendScanHookTests(unittest.TestCase):
             trainer_config = result["training_result"]["config"]
             self.assertIs(trainer_config["--enable_nsfw_check"], True)
             self.assertEqual(trainer_config["--cache_dir"], str(root / "output" / "job2-cache" / "text"))
+            self.assertEqual(trainer_config["--dynamo_backend"], "inductor")
+            self.assertIs(trainer_config["--dynamo_use_regional_compilation"], True)
             self.assertEqual(trainer_config["--nsfw_check_min_votes"], 2)
             self.assertEqual(trainer_config["--nsfw_check_backend_types"], "huggingface,csv,aws")
             self.assertEqual(trainer_config["--nsfw_check_sample_types"], "image,conditioning")
@@ -133,6 +136,55 @@ class Ideogram4BackendScanHookTests(unittest.TestCase):
             self.assertRegex(nsfw_models, r"(Falconsai/nsfw_image_detection|hf_falconsai)")
             self.assertRegex(nsfw_models, r"(AdamCodd/vit-base-nsfw-detector|hf_adamcodd)")
             self.assertRegex(nsfw_models, r"(hoangtrung1801/nsfw-vit-model|hf_hoangtrung)")
+
+    def test_runner_can_disable_regional_compile(self) -> None:
+        backend = load_backend_module()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base_config = root / "base.json"
+            base_config.write_text(
+                json.dumps(
+                    {
+                        "dynamo_backend": "inductor",
+                        "dynamo_use_regional_compilation": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            runner = backend.Ideogram4CogRunner(
+                base_config_path=base_config,
+                dataset_root=root / "datasets",
+                output_root=root / "output",
+                config_root=root / "configs",
+                debug_log=root / "debug.log",
+            )
+
+            result = runner.run(
+                dataset_archive=None,
+                hf_dataset="user/dataset",
+                pixel_area=1024,
+                crop=True,
+                crop_style="center",
+                crop_aspect="square",
+                trigger_word="TOK",
+                caption_strategy="textfile",
+                train_batch_size=1,
+                enable_regional_compile=False,
+                checkpoints_total_limit=1,
+                checkpoint_epoch_interval=1,
+                checkpoint_step_interval=0,
+                max_train_steps=1,
+                num_train_epochs=1,
+                publishing_config=None,
+                job_id="job-disable-compile",
+            )
+
+            trainer_config = result["training_result"]["config"]
+            self.assertNotIn("--dynamo_backend", trainer_config)
+            self.assertNotIn("dynamo_backend", trainer_config)
+            self.assertNotIn("--dynamo_use_regional_compilation", trainer_config)
+            self.assertNotIn("dynamo_use_regional_compilation", trainer_config)
 
     def test_inline_nsfw_is_required_for_remote_backend_types_only(self) -> None:
         backend = load_backend_module()

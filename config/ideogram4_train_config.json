@@ -12,6 +12,8 @@
   "mixed_precision": "bf16",
   "gradient_checkpointing": true,
   "gradient_checkpointing_interval": 1,
+  "dynamo_backend": "inductor",
+  "dynamo_use_regional_compilation": true,
 
   "learning_rate": 1e-4,
   "lr_scheduler": "constant",

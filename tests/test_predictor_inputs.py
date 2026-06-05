@@ -89,6 +89,7 @@ class PredictorInputTests(unittest.TestCase):
         self.assertEqual(runner.build_s3_calls[0]["secret_key"], "secret")
         self.assertEqual(runner.run_calls[0]["hf_token"], "hf-token")
         self.assertEqual(runner.run_calls[0]["caption_strategy"], "textfile")
+        self.assertIs(runner.run_calls[0]["enable_regional_compile"], True)
 
     def test_predict_accepts_secret_objects(self) -> None:
         predict, Secret, runner_cls = load_predict_module()
@@ -125,6 +126,22 @@ class PredictorInputTests(unittest.TestCase):
 
         runner = runner_cls.last_instance
         self.assertEqual(runner.run_calls[0]["caption_strategy"], "filename")
+
+    def test_predict_can_disable_regional_compile(self) -> None:
+        predict, _, runner_cls = load_predict_module()
+        predictor = predict.Predictor()
+        predictor.setup()
+
+        predictor.predict(
+            train_data=None,
+            hf_dataset="user/dataset",
+            s3_bucket="bucket",
+            enable_regional_compile=False,
+            return_logs=False,
+        )
+
+        runner = runner_cls.last_instance
+        self.assertIs(runner.run_calls[0]["enable_regional_compile"], False)
 
 
 if __name__ == "__main__":

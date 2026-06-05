@@ -8,6 +8,7 @@ This repo packages SimpleTuner (via the `SimpleTuner` submodule on the `feature/
 - Force-enables SimpleTuner's native VAE-cache NSFW check for remote dataset backends that cannot be scanned ahead of time, including Hugging Face and the same AWS/CSV backend types supported by SimpleTuner configs.
 - Auto-generates a `data_backend_config` with your crop settings and pixel-area resolution (applied to `minimum_image_size`, `maximum_image_size`, `target_downsample_size`, and validation resolution).
 - Runs the Ideogram 4 FP8 LoRA config in `config/ideogram4_train_config.json` with defaults: batch size slider 1–2 (default 1), rank 32 / alpha 4, `num_train_epochs=25`, `max_train_steps=0`, `checkpoint_epoch_interval=5`, `checkpoint_step_interval=0`, `checkpoints_total_limit=3` (clamped to 5).
+- Enables `torch.compile` with regional compilation by default (`dynamo_backend=inductor`, `dynamo_use_regional_compilation=true`) to avoid the slow whole-model compile path.
 - Enables Ideogram's JSON caption wrapping and validation path. Validation uses structured prompts and CFG guidance because short prompts can trigger Ideogram's weaker filtered path.
 - Publishes checkpoints/output via `--publishing_config` to an S3-compatible bucket you provide. The job also returns a zip of the `output_dir` for direct download.
 
@@ -30,6 +31,7 @@ Validation has a separate generation peak, so keep extra headroom when `ideogram
 - `trigger_word`: subject token used when generating missing JSON captions and validation prompts.
 - `caption_strategy`: caption mode for uploaded archives. `textfile` is the default and uses matching `.txt` files with generated structured JSON fallbacks; `filename` derives captions from filenames; `instanceprompt` uses one structured JSON trigger prompt for every image.
 - `train_batch_size` 1–2 (default 1).
+- `enable_regional_compile`: default `true`; enables torch.compile regional compilation for the Ideogram transformer. Disable only when debugging compile-specific runtime issues.
 - Checkpoint controls: `checkpoints_total_limit` (default 3, max 5), `checkpoint_epoch_interval` (default 5), `checkpoint_step_interval` fixed at 0.
 - Training length: `num_train_epochs` (default 25), `max_train_steps` (default 0).
 - Publishing (required): `s3_bucket`, plus optional `s3_region`, `s3_endpoint_url`, `s3_base_path`, `s3_public_base_url`, `s3_access_key`, `s3_secret_key`.

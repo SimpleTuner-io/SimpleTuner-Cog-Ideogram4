@@ -60,6 +60,7 @@ class Ideogram4CogRunner:
         trigger_word: str,
         caption_strategy: str,
         train_batch_size: int,
+        enable_regional_compile: bool,
         checkpoints_total_limit: int,
         checkpoint_epoch_interval: int,
         checkpoint_step_interval: int,
@@ -115,6 +116,14 @@ class Ideogram4CogRunner:
                 "--validation_resolution": f"{pixel_area_value}x{pixel_area_value}",
             }
         )
+        if enable_regional_compile:
+            merged_config["--dynamo_backend"] = "inductor"
+            merged_config["--dynamo_use_regional_compilation"] = True
+        else:
+            merged_config.pop("--dynamo_backend", None)
+            merged_config.pop("dynamo_backend", None)
+            merged_config.pop("--dynamo_use_regional_compilation", None)
+            merged_config.pop("dynamo_use_regional_compilation", None)
         trigger = self._normalise_trigger_word(trigger_word)
         merged_config["--validation_prompt"] = self._validation_prompt(trigger)
 

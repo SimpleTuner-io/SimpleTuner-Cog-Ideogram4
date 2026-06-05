@@ -93,6 +93,10 @@ class Predictor(BasePredictor):
             ge=1,
             le=2,
         ),
+        enable_regional_compile: bool = Input(
+            description="Enable torch.compile with regional compilation for the Ideogram transformer. Recommended for native FP8; disable only if compile causes a runtime issue.",
+            default=True,
+        ),
         checkpoints_total_limit: int = Input(
             description="Maximum checkpoints to retain (max 5).",
             default=3,
@@ -184,6 +188,7 @@ class Predictor(BasePredictor):
             trigger_word=trigger_word,
             caption_strategy=caption_strategy,
             train_batch_size=train_batch_size,
+            enable_regional_compile=enable_regional_compile,
             checkpoints_total_limit=checkpoints_total_limit,
             checkpoint_epoch_interval=checkpoint_epoch_interval,
             checkpoint_step_interval=0,
