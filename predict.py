@@ -5,6 +5,7 @@ from __future__ import annotations
 import ctypes
 import os
 import site
+import subprocess
 from pathlib import Path as FilePath
 from typing import Optional
 
@@ -41,11 +42,65 @@ def _prefer_cuda_python_wheel_libraries() -> None:
 
 _prefer_cuda_python_wheel_libraries()
 
-from ideogram4_backend import Ideogram4CogRunner
+
+def _cuda_diagnostics() -> str:
+    details = [
+        f"CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')!r}",
+        f"NVIDIA_VISIBLE_DEVICES={os.environ.get('NVIDIA_VISIBLE_DEVICES')!r}",
+        f"LD_LIBRARY_PATH={os.environ.get('LD_LIBRARY_PATH')!r}",
+    ]
+    try:
+        import torch
+
+        details.extend(
+            [
+                f"torch={torch.__version__}",
+                f"torch.version.cuda={torch.version.cuda}",
+                f"torch.cuda.is_available={torch.cuda.is_available()}",
+                f"torch.cuda.device_count={torch.cuda.device_count()}",
+            ]
+        )
+        if torch.cuda.is_available():
+            details.append(f"torch.cuda.current_device={torch.cuda.current_device()}")
+            details.append(f"torch.cuda.device_name={torch.cuda.get_device_name(0)}")
+    except Exception as exc:
+        details.append(f"torch_import_error={type(exc).__name__}: {exc}")
+
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "-L"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=10,
+        )
+        details.append(f"nvidia-smi rc={result.returncode}: {result.stdout.strip()}")
+    except Exception as exc:
+        details.append(f"nvidia-smi_error={type(exc).__name__}: {exc}")
+    return "; ".join(details)
+
+
+def _assert_cuda_available() -> None:
+    if os.environ.get("SIMPLETUNER_COG_SKIP_CUDA_PREFLIGHT", "").lower() in {"1", "true", "yes"}:
+        return
+    try:
+        import torch
+    except Exception:
+        return
+    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+        return
+    raise RuntimeError(
+        "Ideogram 4 training requires a CUDA-visible GPU, but this worker is CPU-visible. "
+        f"Diagnostics: {_cuda_diagnostics()}"
+    )
 
 
 class Predictor(BasePredictor):
     def setup(self) -> None:
+        _assert_cuda_available()
+        from ideogram4_backend import Ideogram4CogRunner
+
         self.runner = Ideogram4CogRunner()
 
     def predict(
@@ -155,6 +210,7 @@ class Predictor(BasePredictor):
             default=True,
         ),
     ) -> Path:
+        _assert_cuda_available()
         job_id = self.runner._new_job_id()
 
         if not s3_bucket:

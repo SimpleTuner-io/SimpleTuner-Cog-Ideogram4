@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -64,6 +65,7 @@ def load_predict_module():
     sys.modules["ideogram4_backend"] = backend
 
     sys.modules.pop("predict", None)
+    os.environ["SIMPLETUNER_COG_SKIP_CUDA_PREFLIGHT"] = "1"
     return importlib.import_module("predict"), Secret, Ideogram4CogRunner
 
 
