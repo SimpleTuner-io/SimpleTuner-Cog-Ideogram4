@@ -11,6 +11,8 @@ from typing import Optional
 
 from cog import BasePredictor, Input, Path, Secret
 
+os.environ.setdefault("SIMPLETUNER_DISABLE_COLORS", "1")
+
 
 def _secret_value(secret: Optional[Secret | str]) -> Optional[str]:
     if secret is None:
