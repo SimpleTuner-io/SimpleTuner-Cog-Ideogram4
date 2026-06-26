@@ -1,6 +1,7 @@
 # Reduce Cog/Docker build context
 .git
 .gitignore
+SimpleTuner
 .venv
 __pycache__
 *.pyc

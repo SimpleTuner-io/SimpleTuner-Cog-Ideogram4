@@ -6,7 +6,7 @@ build:
   system_packages:
     - git
   run:
-    - if [ ! -d SimpleTuner ]; then git clone --depth 1 --branch feature/ideogram-scaled-mm https://github.com/bghira/SimpleTuner.git SimpleTuner; fi
+    - rm -rf SimpleTuner && git clone --depth 1 --branch main https://github.com/bghira/SimpleTuner.git SimpleTuner
     - pip install --upgrade pip
     - printf '%s\n' 'torch==2.10.0+cu128' 'torchvision==0.25.0+cu128' 'torchaudio==2.10.0+cu128' > /tmp/constraints-cuda128.txt
     - pip install --no-deps --index-url https://download.pytorch.org/whl/cu128 -c /tmp/constraints-cuda128.txt torch torchvision torchaudio
