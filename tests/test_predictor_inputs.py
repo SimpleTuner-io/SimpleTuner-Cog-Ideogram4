@@ -145,6 +145,22 @@ class PredictorInputTests(unittest.TestCase):
         runner = runner_cls.last_instance
         self.assertIs(runner.run_calls[0]["enable_regional_compile"], False)
 
+    def test_predict_forwards_learning_rate(self) -> None:
+        predict, _, runner_cls = load_predict_module()
+        predictor = predict.Predictor()
+        predictor.setup()
+
+        predictor.predict(
+            train_data=None,
+            hf_dataset="user/dataset",
+            learning_rate=2e-4,
+            s3_bucket="bucket",
+            return_logs=False,
+        )
+
+        runner = runner_cls.last_instance
+        self.assertEqual(runner.run_calls[0]["learning_rate"], 2e-4)
+
 
 if __name__ == "__main__":
     unittest.main()

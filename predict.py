@@ -150,6 +150,12 @@ class Predictor(BasePredictor):
             ge=1,
             le=2,
         ),
+        learning_rate: float = Input(
+            description="LoRA learning rate.",
+            default=1e-4,
+            ge=1e-7,
+            le=1e-2,
+        ),
         enable_regional_compile: bool = Input(
             description="Enable torch.compile with regional compilation for the Ideogram transformer. Recommended for native FP8; disable only if compile causes a runtime issue.",
             default=True,
@@ -246,6 +252,7 @@ class Predictor(BasePredictor):
             trigger_word=trigger_word,
             caption_strategy=caption_strategy,
             train_batch_size=train_batch_size,
+            learning_rate=learning_rate,
             enable_regional_compile=enable_regional_compile,
             checkpoints_total_limit=checkpoints_total_limit,
             checkpoint_epoch_interval=checkpoint_epoch_interval,
